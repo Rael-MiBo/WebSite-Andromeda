@@ -1,6 +1,10 @@
 import Button from "../../components/button/Button";
+import { useAuth } from "../../pages/hooks/useAuth"; // Importando o hook
 
-export default function autenticacao() {
+export default function Autenticacao() {
+  // Puxamos a lógica do hook
+  const { login, logout, isLoading, isAuthenticated, user } = useAuth();
+
   return (
     <div className="home-container">
       <section className="px-4 py-5 my-5 text-center hero-section">
@@ -9,21 +13,56 @@ export default function autenticacao() {
             Conecte-se em sua conta e aproveite o{" "}
             <span className="text-gradient">Andrômeda</span>
           </h1>
+          
           <div className="col-lg-8 mx-auto">
             <div className="d-grid gap-3 d-sm-flex justify-content-sm-center">
-              <Button
-                variant="primary"
-                className="btn-lg px-4 gap-3 fw-bold rounded-pill"
-              >
-                <i className="bi bi-discord me-2"></i>
-                Autenticar com Discord
-              </Button>
+              
+              {!isAuthenticated ? (
+                <Button
+                  variant="primary"
+                  className="btn-lg px-4 gap-3 fw-bold rounded-pill"
+                  onClick={login}
+                  // Desativa o botão se estiver carregando
+                  // disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2"></span>
+                      Conectando...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-discord me-2"></i>
+                      Autenticar com Discord
+                    </>
+                  )}
+                </Button>
+              ) : (
+                // === ESTADO: JÁ LOGADO ===
+                <div className="d-flex flex-column align-items-center gap-3">
+                    <div className="alert alert-success d-flex align-items-center">
+                        <img src={user?.avatar} alt="avatar" className="rounded-circle me-2" width="30"/>
+                        <span>Olá, <strong>{user?.name}</strong>! Você já está conectado.</span>
+                    </div>
+                    <div className="d-flex gap-2">
+                        <Button to="/resgatar" variant="outline-light" className="rounded-pill">
+                            Ir para Dashboard
+                        </Button>
+                        <Button onClick={logout} variant="danger" className="rounded-pill">
+                            Sair
+                        </Button>
+                    </div>
+                </div>
+              )}
+
             </div>
           </div>
         </div>
       </section>
+
+      {/* Seção de Features (mantida igual) */}
       <section className="container px-4 py-5" id="features">
-        <h2 className="pb-2 border-bottom border-secondary">
+        <h2 className="pb-2 border-bottom border-secondary text-white">
           Por que escolher se autenticar?
         </h2>
         <div className="row g-4 py-5 row-cols-1 row-cols-lg-3">
