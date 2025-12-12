@@ -1,4 +1,5 @@
 import { useState } from "react";
+import CommandCard from "../../components/card/CommandCard";
 
 // Dados simulados (alterar para buscar de uma API real)
 const commandsData = [
@@ -19,15 +20,6 @@ export default function Comandos() {
     cmd.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     cmd.desc.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const getBadgeColor = (category: string) => {
-    switch (category) {
-      case "Música": return "text-bg-primary";
-      case "Moderação": return "text-bg-danger";
-      case "Utilidade": return "text-bg-success";
-      default: return "text-bg-secondary";
-    }
-  };
 
   return (
     <div className="container py-5">
@@ -58,22 +50,13 @@ export default function Comandos() {
       <div className="row g-4">
         {filteredCommands.length > 0 ? (
           filteredCommands.map((cmd) => (
-            <div key={cmd.id} className="col-md-6 col-lg-4">
-              <div className="card h-100 bg-dark border-secondary text-light shadow-sm cmd-card">
-                <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-start mb-3">
-                    <h3 className="card-title h4 text-info fw-bold">{cmd.name}</h3>
-                    <span className={`badge rounded-pill ${getBadgeColor(cmd.category)}`}>
-                      {cmd.category}
-                    </span>
-                  </div>
-                  <p className="card-text text-secondary">{cmd.desc}</p>
-                  <div className="mt-3 p-2 bg-black rounded border border-secondary border-opacity-25">
-                    <code className="text-warning small">{cmd.usage}</code>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <CommandCard 
+                key={cmd.id}
+                name={cmd.name}
+                desc={cmd.desc}
+                category={cmd.category}
+                usage={cmd.usage}
+            />
           ))
         ) : (
           <div className="text-center text-secondary mt-5">

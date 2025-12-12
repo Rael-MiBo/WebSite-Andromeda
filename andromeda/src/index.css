@@ -1,5 +1,5 @@
 :root {
-  --cinema-red: #E50914;
+  --cinema-red: #8500dd;
   --cinema-black: #141414;
   --cinema-dark-gray: #181818;
   --cinema-light-gray: #b3b3b3;
@@ -72,7 +72,7 @@ body {
   font-weight: bold;
 }
 .btn-primary:hover {
-  background-color: #bd0000 !important;
+  background-color: #8500dd !important;
 }
 
 .btn-light, .btn-secondary, .btn-outline-secondary {
