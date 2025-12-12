@@ -14,7 +14,7 @@ export function useAuth() {
   const login = () => {
     setIsLoading(true);
 
-    // window.location.href = "https://discord.com/oauth2/authorize?client_id=1070401576591708242&response_type=code&redirect_uri=localhost%3A5173%2F&scope=identify";
+    window.location.href = "https://discord.com/oauth2/authorize?client_id=1070401576591708242&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fresgatar&scope=identify";
     
     setTimeout(() => {
       const mockUser = {
