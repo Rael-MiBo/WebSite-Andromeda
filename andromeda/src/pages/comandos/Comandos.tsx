@@ -24,7 +24,7 @@ export default function Comandos() {
   return (
     <div className="container py-5">
       <div className="text-center mb-5">
-        <h1 className="display-4 fw-bold text-light mb-3">Comandos do Andrômeda</h1>
+        <h1 className="display-4 fw-bold text-light mb-3">Comandos do <span className="text-gradient">Andrômeda</span></h1>
         <p className="lead text-secondary mb-4">
           Explore todas as funcionalidades disponíveis para o seu servidor.
         </p>
