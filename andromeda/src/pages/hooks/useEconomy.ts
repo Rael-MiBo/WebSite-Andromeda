@@ -8,77 +8,93 @@ interface DiscordUser {
 export function useEconomy(user: DiscordUser | null) {
   const [balance, setBalance] = useState(0);
   const [canClaimDaily, setCanClaimDaily] = useState(false);
-  const [betAmount, setBetAmount] = useState("");
   const [gameMessage, setGameMessage] = useState("");
+  const [betAmount, setBetAmount] = useState("");
 
-  const balanceKey = user ? `economy_${user.id}_balance` : "";
-  const dailyKey = user ? `economy_${user.id}_last_claim` : "";
+  const API_URL = "http://localhost:3001/users";
 
-  useEffect(() => {
-    if (!user) {
-      setBalance(0);
-      setCanClaimDaily(false);
-      setGameMessage("");
-      return;
-    }
-
-    const savedBalance = localStorage.getItem(balanceKey);
-    setBalance(savedBalance ? parseInt(savedBalance) : 0);
-
-    const lastClaimDate = localStorage.getItem(dailyKey);
-    const today = new Date().toDateString();
-    
-    if (!lastClaimDate || lastClaimDate !== today) {
-      setCanClaimDaily(true);
-    } else {
-      setCanClaimDaily(false);
-    }
-
-  }, [user, balanceKey, dailyKey]);
-
-
-  const handleDailyReward = () => {
+  const fetchUserData = async () => {
     if (!user) return;
 
-    const reward = Math.floor(Math.random() * (200 - 50 + 1)) + 50;
-    const newBalance = balance + reward;
-    
-    setBalance(newBalance);
-    localStorage.setItem(balanceKey, newBalance.toString());
-
-    localStorage.setItem(dailyKey, new Date().toDateString());
-    setCanClaimDaily(false);
-
-    setGameMessage(`🎉 Você ganhou ${reward} coins no prêmio diário!`);
+    try {
+      const response = await fetch(`${API_URL}/${user.id}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setBalance(data.balance);
+        
+        const today = new Date().toDateString();
+        setCanClaimDaily(data.lastClaimDate !== today);
+      } else {
+        const newUser = {
+          id: user.id,
+          username: user.username,
+          balance: 0,
+          lastClaimDate: ""
+        };
+        
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newUser)
+        });
+        
+        setBalance(0);
+        setCanClaimDaily(true);
+      }
+    } catch (error) {
+      console.error("Erro ao conectar com API:", error);
+    }
   };
 
-  const handleBet = (choice: "cara" | "coroa") => {
+  useEffect(() => {
+    fetchUserData();
+  }, [user]);
+
+  const updateDatabase = async (newBalance: number, newDate?: string) => {
     if (!user) return;
 
-    const value = parseInt(betAmount);
+    setBalance(newBalance);
+    if (newDate) setCanClaimDaily(false);
 
-    if (!value || value <= 0) {
-      setGameMessage("⚠️ Digite um valor válido.");
-      return;
-    }
-    if (value > balance) {
-      setGameMessage("🚫 Saldo insuficiente!");
+    await fetch(`${API_URL}/${user.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        balance: newBalance,
+        ...(newDate && { lastClaimDate: newDate })
+      })
+    });
+  };
+
+  const handleDailyReward = async () => {
+    const reward = Math.floor(Math.random() * (200 - 50 + 1)) + 50;
+    const newBalance = balance + reward;
+    const today = new Date().toDateString();
+
+    setGameMessage(`🎉 Você ganhou ${reward} coins no prêmio diário!`);
+    await updateDatabase(newBalance, today);
+  };
+
+  const handleBet = async (choice: "cara" | "coroa") => {
+    const value = parseInt(betAmount);
+    if (!value || value <= 0 || value > balance) {
+      setGameMessage("🚫 Aposta inválida.");
       return;
     }
 
     const result = Math.random() < 0.5 ? "cara" : "coroa";
-    
+    let newBalance = balance;
+
     if (choice === result) {
-      const newBalance = balance + value;
-      setBalance(newBalance);
-      localStorage.setItem(balanceKey, newBalance.toString());
+      newBalance += value;
       setGameMessage(`🔥 DEU ${result.toUpperCase()}! Ganhou +${value} coins!`);
     } else {
-      const newBalance = balance - value;
-      setBalance(newBalance);
-      localStorage.setItem(balanceKey, newBalance.toString());
+      newBalance -= value;
       setGameMessage(`📉 Deu ${result.toUpperCase()}... Perdeu ${value} coins.`);
     }
+
+    await updateDatabase(newBalance);
   };
 
   return {
