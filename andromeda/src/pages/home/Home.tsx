@@ -3,7 +3,7 @@ import "./Home.css";
 
 export default function Home() {
   const handleInvite = () => {
-    window.open("https://discord.com/seu-link-de-convite", "_blank");
+    window.open("https://discord.com/oauth2/authorize?client_id=1070401576591708242", "_blank");
   };
 
   return (

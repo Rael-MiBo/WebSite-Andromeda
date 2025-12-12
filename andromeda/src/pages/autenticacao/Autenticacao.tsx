@@ -1,8 +1,7 @@
 import Button from "../../components/button/Button";
-import { useAuth } from "../../pages/hooks/useAuth"; // Importando o hook
+import { useAuth } from "../../pages/hooks/useAuth";
 
 export default function Autenticacao() {
-  // Puxamos a lógica do hook
   const { login, logout, isLoading, isAuthenticated, user } = useAuth();
 
   return (
@@ -13,17 +12,14 @@ export default function Autenticacao() {
             Conecte-se em sua conta e aproveite o{" "}
             <span className="text-gradient">Andrômeda</span>
           </h1>
-          
+
           <div className="col-lg-8 mx-auto">
             <div className="d-grid gap-3 d-sm-flex justify-content-sm-center">
-              
               {!isAuthenticated ? (
                 <Button
                   variant="primary"
                   className="btn-lg px-4 gap-3 fw-bold rounded-pill"
                   onClick={login}
-                  // Desativa o botão se estiver carregando
-                  // disabled={isLoading}
                 >
                   {isLoading ? (
                     <>
@@ -38,29 +34,42 @@ export default function Autenticacao() {
                   )}
                 </Button>
               ) : (
-                // === ESTADO: JÁ LOGADO ===
                 <div className="d-flex flex-column align-items-center gap-3">
-                    <div className="alert alert-success d-flex align-items-center">
-                        <img src={user?.avatar} alt="avatar" className="rounded-circle me-2" width="30"/>
-                        <span>Olá, <strong>{user?.name}</strong>! Você já está conectado.</span>
-                    </div>
-                    <div className="d-flex gap-2">
-                        <Button to="/resgatar" variant="outline-light" className="rounded-pill">
-                            Ir para Dashboard
-                        </Button>
-                        <Button onClick={logout} variant="danger" className="rounded-pill">
-                            Sair
-                        </Button>
-                    </div>
+                  <div className="alert alert-success d-flex align-items-center">
+                    <img
+                      src={user?.avatar}
+                      alt="avatar"
+                      className="rounded-circle me-2"
+                      width="30"
+                    />
+                    <span>
+                      Olá, <strong>{user?.username}</strong>! Você já está
+                      conectado.
+                    </span>{" "}
+                  </div>
+                  <div className="d-flex gap-2">
+                    <Button
+                      to="/resgatar"
+                      variant="outline-light"
+                      className="rounded-pill"
+                    >
+                      Ir para Dashboard
+                    </Button>
+                    <Button
+                      onClick={logout}
+                      variant="danger"
+                      className="rounded-pill"
+                    >
+                      Sair
+                    </Button>
+                  </div>
                 </div>
               )}
-
             </div>
           </div>
         </div>
       </section>
 
-      {/* Seção de Features (mantida igual) */}
       <section className="container px-4 py-5" id="features">
         <h2 className="pb-2 border-bottom border-secondary text-white">
           Por que escolher se autenticar?
@@ -84,7 +93,8 @@ export default function Autenticacao() {
               </div>
               <h3 className="fs-2 text-white">Administração de servidores</h3>
               <p className="text-secondary">
-                Gerencie configurações personalizadas para seus servidores diretamente do painel.
+                Gerencie configurações personalizadas para seus servidores
+                diretamente do painel.
               </p>
             </div>
           </div>
@@ -95,7 +105,8 @@ export default function Autenticacao() {
               </div>
               <h3 className="fs-2 text-white">Agilidade</h3>
               <p className="text-secondary">
-                Acesse rapidamente suas configurações e estatísticas sem complicações.
+                Acesse rapidamente suas configurações e estatísticas sem
+                complicações.
               </p>
             </div>
           </div>

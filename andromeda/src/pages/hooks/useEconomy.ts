@@ -1,52 +1,68 @@
 import { useState, useEffect } from "react";
 
-export function useEconomy() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+interface DiscordUser {
+  id: string;
+  username: string;
+}
+
+export function useEconomy(user: DiscordUser | null) {
   const [balance, setBalance] = useState(0);
-  const [canClaimDaily, setCanClaimDaily] = useState(true);
+  const [canClaimDaily, setCanClaimDaily] = useState(false);
   const [betAmount, setBetAmount] = useState("");
   const [gameMessage, setGameMessage] = useState("");
 
+  const balanceKey = user ? `economy_${user.id}_balance` : "";
+  const dailyKey = user ? `economy_${user.id}_last_claim` : "";
+
   useEffect(() => {
-    const savedBalance = localStorage.getItem("userBalance");
-    const lastClaimDate = localStorage.getItem("lastClaimDate");
-
-    if (savedBalance) setBalance(parseInt(savedBalance));
-
-    if (lastClaimDate) {
-      const today = new Date().toDateString();
-      if (lastClaimDate === today) {
-        setCanClaimDaily(false);
-      }
+    if (!user) {
+      setBalance(0);
+      setCanClaimDaily(false);
+      setGameMessage("");
+      return;
     }
-  }, []);
-  
-  const toggleLoginMock = () => {
-    setIsLoggedIn((prev) => !prev);
-  };
+
+    const savedBalance = localStorage.getItem(balanceKey);
+    setBalance(savedBalance ? parseInt(savedBalance) : 0);
+
+    const lastClaimDate = localStorage.getItem(dailyKey);
+    const today = new Date().toDateString();
+    
+    if (!lastClaimDate || lastClaimDate !== today) {
+      setCanClaimDaily(true);
+    } else {
+      setCanClaimDaily(false);
+    }
+
+  }, [user, balanceKey, dailyKey]);
+
 
   const handleDailyReward = () => {
-    const reward = Math.floor(Math.random() * (200 - 50 + 1)) + 50;
-    
-    const newBalance = balance + reward;
-    setBalance(newBalance);
-    localStorage.setItem("userBalance", newBalance.toString());
+    if (!user) return;
 
-    localStorage.setItem("lastClaimDate", new Date().toDateString());
+    const reward = Math.floor(Math.random() * (200 - 50 + 1)) + 50;
+    const newBalance = balance + reward;
+    
+    setBalance(newBalance);
+    localStorage.setItem(balanceKey, newBalance.toString());
+
+    localStorage.setItem(dailyKey, new Date().toDateString());
     setCanClaimDaily(false);
 
     setGameMessage(`🎉 Você ganhou ${reward} coins no prêmio diário!`);
   };
 
   const handleBet = (choice: "cara" | "coroa") => {
+    if (!user) return;
+
     const value = parseInt(betAmount);
 
     if (!value || value <= 0) {
-      setGameMessage("⚠️ Digite um valor válido para apostar.");
+      setGameMessage("⚠️ Digite um valor válido.");
       return;
     }
     if (value > balance) {
-      setGameMessage("🚫 Você não tem saldo suficiente!");
+      setGameMessage("🚫 Saldo insuficiente!");
       return;
     }
 
@@ -55,24 +71,22 @@ export function useEconomy() {
     if (choice === result) {
       const newBalance = balance + value;
       setBalance(newBalance);
-      localStorage.setItem("userBalance", newBalance.toString());
-      setGameMessage(`🔥 DEU ${result.toUpperCase()}! Você ganhou ${value} coins!`);
+      localStorage.setItem(balanceKey, newBalance.toString());
+      setGameMessage(`🔥 DEU ${result.toUpperCase()}! Ganhou +${value} coins!`);
     } else {
       const newBalance = balance - value;
       setBalance(newBalance);
-      localStorage.setItem("userBalance", newBalance.toString());
-      setGameMessage(`📉 Deu ${result.toUpperCase()}... Você perdeu ${value} coins.`);
+      localStorage.setItem(balanceKey, newBalance.toString());
+      setGameMessage(`📉 Deu ${result.toUpperCase()}... Perdeu ${value} coins.`);
     }
   };
 
   return {
     balance,
-    isLoggedIn,
     canClaimDaily,
     betAmount,
     gameMessage,
-    setBetAmount, 
-    toggleLoginMock,
+    setBetAmount,
     handleDailyReward,
     handleBet
   };

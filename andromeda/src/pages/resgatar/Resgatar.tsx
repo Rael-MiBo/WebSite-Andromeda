@@ -1,38 +1,45 @@
 import Button from "../../components/button/Button";
+import { useAuth } from "../../pages/hooks/useAuth";
 import { useEconomy } from "../../pages/hooks/useEconomy";
 
 export default function Resgatar() {
+  const { user, isAuthenticated, login } = useAuth();
+
   const {
     balance,
-    isLoggedIn,
     canClaimDaily,
     betAmount,
     gameMessage,
     setBetAmount,
-    toggleLoginMock,
     handleDailyReward,
     handleBet,
-  } = useEconomy();
+  } = useEconomy(user);
 
   return (
     <div className="container py-5">
-      <div className="alert alert-warning d-flex justify-content-between align-items-center mb-5">
-        <small>🔧 Modo Dev: Simular Autenticação</small>
-        <button className="btn btn-sm btn-dark" onClick={toggleLoginMock}>
-          {isLoggedIn ? "Deslogar" : "Simular Login"}
-        </button>
-      </div>
-
       <div className="text-center mb-5">
         <h1 className="display-4 fw-bold text-light">Central de Resgate</h1>
-        <p className="lead text-secondary">
-          {isLoggedIn
-            ? "Gerencie seus coins e tente a sorte!"
-            : "Faça login para acessar sua carteira e recompensas."}
+        <p className="lead text-secondary d-flex justify-content-center align-items-center gap-2">
+          {isAuthenticated ? (
+            <>
+              <img
+                src={user?.avatar}
+                alt="avatar"
+                className="rounded-circle"
+                width="30"
+                height="30"
+              />
+              <span>
+                <strong>{user?.username}</strong>, Bem-vindo de volta!
+              </span>
+            </>
+          ) : (
+            "Faça login para gerenciar seus coins."
+          )}
         </p>
       </div>
 
-      {!isLoggedIn ? (
+      {!isAuthenticated ? (
         <div className="row justify-content-center animate__animated animate__fadeIn">
           <div className="col-lg-6">
             <div className="card bg-dark border-danger shadow-lg">
@@ -42,19 +49,18 @@ export default function Resgatar() {
                 </div>
                 <h3 className="text-white mb-3">Acesso Restrito</h3>
                 <p className="text-secondary mb-4">
-                  Você precisa estar autenticado com sua conta do Discord.
+                  Você precisa estar autenticado com sua conta do Discord para
+                  acessar sua carteira.
                 </p>
+
                 <div className="d-grid gap-3">
                   <Button
-                    onClick={toggleLoginMock}
+                    onClick={login}
                     variant="primary"
                     className="btn-lg fw-bold"
                   >
                     <i className="bi bi-discord me-2"></i>
                     Entrar com Discord
-                  </Button>
-                  <Button to="/" variant="outline-light">
-                    Voltar para Home
                   </Button>
                 </div>
               </div>
@@ -71,7 +77,7 @@ export default function Resgatar() {
           </div>
 
           {gameMessage && (
-            <div className="alert alert-info text-center fw-bold mb-4">
+            <div className="alert alert-info text-center fw-bold mb-4 border-info bg-dark text-info">
               {gameMessage}
             </div>
           )}
@@ -79,9 +85,16 @@ export default function Resgatar() {
           <div className="row g-4">
             <div className="col-md-6">
               <div className="card h-100 bg-dark border-secondary shadow">
-                <div className="card-header border-secondary fw-bold text-white">
-                  <i className="bi bi-calendar-check me-2 text-success"></i>{" "}
-                  Recompensa Diária
+                <div className="card-header border-secondary fw-bold text-white d-flex justify-content-between align-items-center">
+                  <span>
+                    <i className="bi bi-calendar-check me-2 text-success"></i>{" "}
+                    Recompensa Diária
+                  </span>
+                  {canClaimDaily && (
+                    <span className="badge bg-success rounded-pill">
+                      Disponível
+                    </span>
+                  )}
                 </div>
                 <div className="card-body text-center d-flex flex-column justify-content-center">
                   <p className="text-secondary">
@@ -98,7 +111,8 @@ export default function Resgatar() {
                     </Button>
                   ) : (
                     <button className="btn btn-secondary btn-lg w-100" disabled>
-                      <i className="bi bi-clock-history me-2"></i> Volte amanhã
+                      <i className="bi bi-check-circle me-2"></i>
+                      Já coletado hoje
                     </button>
                   )}
                 </div>
@@ -113,16 +127,21 @@ export default function Resgatar() {
                 </div>
                 <div className="card-body">
                   <div className="mb-3">
-                    <label className="text-secondary form-label">
+                    <label className="text-secondary form-label small">
                       Valor da Aposta
                     </label>
-                    <input
-                      type="number"
-                      className="form-control bg-black text-white border-secondary"
-                      placeholder="0"
-                      value={betAmount}
-                      onChange={(e) => setBetAmount(e.target.value)}
-                    />
+                    <div className="input-group">
+                      <span className="input-group-text bg-black border-secondary text-warning">
+                        <i className="bi bi-coin"></i>
+                      </span>
+                      <input
+                        type="number"
+                        className="form-control bg-black text-white border-secondary"
+                        placeholder="Min: 1"
+                        value={betAmount}
+                        onChange={(e) => setBetAmount(e.target.value)}
+                      />
+                    </div>
                   </div>
                   <div className="row g-2">
                     <div className="col-6">
