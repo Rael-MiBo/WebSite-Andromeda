@@ -1,3 +1,10 @@
 {
-  "users": []
+  "users": [
+    {
+      "id": "560264030460182608",
+      "username": ".rafa_x",
+      "balance": 195,
+      "lastClaimDate": "Fri Dec 12 2025"
+    }
+  ]
 }
